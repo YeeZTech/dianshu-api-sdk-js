@@ -1,0 +1,17 @@
+{
+  "name": "dianshu-api-js-sdk",
+  "version": "0.0.1",
+  "description": "JS SDK for Dianshu API (generated skeleton). Replace or extend implementations based on Java SDK.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test/run.js && node test/test_nodejs_integration.js",
+    "test:dopost": "node test/test_dopost.js",
+    "test:doget": "node test/test_doget.js"
+  },
+  "keywords": ["dianshu", "sdk", "api"],
+  "author": "generated",
+  "license": "MIT",
+  "dependencies": {
+    "@yeez-tech/meta-encryptor": "^2.0.1-alpha.5"
+  }
+}
