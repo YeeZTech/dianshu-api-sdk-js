@@ -1,4 +1,4 @@
-const { crypto } = require('../src');
+const { crypto } = require('..');
 
 async function run() {
   console.log('Running basic crypto self-test (node fallback or libspec if installed)');

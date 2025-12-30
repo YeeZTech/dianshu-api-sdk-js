@@ -1,7 +1,6 @@
-const YPCUtils = require("@yeez-tech/meta-encryptor/build/commonjs/utils.cjs");
-const YPCCrypto = YPCUtils.YPCCrypto;
+import { YPCCrypto } from "@yeez-tech/meta-encryptor";
 
-function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianPublicKeyHex, enclaveHashStr, dataHash) {
+export function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianPublicKeyHex, enclaveHashStr, dataHash) {
   const skey = Buffer.from(userPrivateKeyHex, "hex");
   const dataPkey = Buffer.from(dianPublicKeyHex, "hex");
   const enclave_hash = Buffer.from(enclaveHashStr, "hex");
@@ -17,5 +16,3 @@ function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianPublicKeyHex, 
   };
   return reqData;
 }
-
-module.exports = { buildAuditParam };

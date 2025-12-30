@@ -1,10 +1,31 @@
-const credentialAdapter = require('./generated/credentialAdapter');
+import * as credentialAdapter from './generated/credentialAdapter.js';
 
 // resolve fetch similar to apiClient
 let fetchImpl = null;
-try { if (typeof fetch === 'function') fetchImpl = fetch; } catch (e) {}
-if (!fetchImpl) {
-  try { const nf = require('node-fetch'); fetchImpl = nf && (nf.default || nf); } catch (e) { fetchImpl = null; }
+let fetchImplPromise = null;
+
+async function getFetchImpl() {
+  if (fetchImpl) return fetchImpl;
+  if (fetchImplPromise) return fetchImplPromise;
+  
+  fetchImplPromise = (async () => {
+    try {
+      if (typeof fetch === 'function') {
+        fetchImpl = fetch;
+        return fetchImpl;
+      }
+    } catch (e) {}
+    
+    try {
+      const nf = await import('node-fetch');
+      fetchImpl = nf.default || nf;
+      return fetchImpl;
+    } catch (e) {
+      return null;
+    }
+  })();
+  
+  return fetchImplPromise;
 }
 
 class DSAPIClient {
@@ -18,9 +39,11 @@ class DSAPIClient {
 
   async ensureFideliusConfig() {
     if (this.fideliusConfig) return this.fideliusConfig;
+    const fetch = await getFetchImpl();
+    if (!fetch) throw new Error('fetch implementation not available');
     const url = `${this.ctx.getBaseUrl()}/api/privateKey`;
     const body = { appCode: this.ctx.getAppCode(), apiId: this.apiId };
-    const res = await fetchImpl(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const text = await res.text();
     let parsed;
     try { parsed = JSON.parse(text); } catch (e) { throw new Error('invalid fidelius config response: ' + text); }
@@ -62,12 +85,13 @@ class DSAPIClient {
         shuInfo: typeof shuInfo === 'string' ? shuInfo : JSON.stringify(shuInfo)
       };
 
-      if (!fetchImpl) {
+      const fetch = await getFetchImpl();
+      if (!fetch) {
         // return constructed request when fetch not available
         return { url, method: 'POST', headers, body: { params: paramsHex } };
       }
 
-      const resp = await fetchImpl(url, { method: 'POST', headers, body: JSON.stringify({ params: paramsHex }) });
+      const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ params: paramsHex }) });
       const text = await resp.text();
       let parsed;
       try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
@@ -110,14 +134,15 @@ class DSAPIClient {
         shuInfo: typeof shuInfo === 'string' ? shuInfo : JSON.stringify(shuInfo)
       };
 
-      if (!fetchImpl) {
+      const fetch = await getFetchImpl();
+      if (!fetch) {
         // return constructed request when fetch not available
         return { url, method: 'GET', headers, params: { params: paramsHex } };
       }
 
       // append params as query param 'params'
       const reqUrl = `${url}?params=${encodeURIComponent(paramsHex)}`;
-      const resp = await fetchImpl(reqUrl, { method: 'GET', headers });
+      const resp = await fetch(reqUrl, { method: 'GET', headers });
       const text = await resp.text();
       let parsed;
       try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
@@ -133,4 +158,4 @@ class DSAPIClient {
   }
 }
 
-module.exports = DSAPIClient;
+export default DSAPIClient;

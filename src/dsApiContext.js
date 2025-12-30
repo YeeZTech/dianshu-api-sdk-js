@@ -1,7 +1,6 @@
-const YPCUtils = require('@yeez-tech/meta-encryptor/build/commonjs/utils.cjs');
-const YPCCrypto = YPCUtils.YPCCrypto;
-const credentialAdapter = require('./generated/credentialAdapter');
-const audit = require('./generated/auditParam');
+import { YPCCrypto } from '@yeez-tech/meta-encryptor';
+import * as credentialAdapter from './generated/credentialAdapter.js';
+import * as audit from './generated/auditParam.js';
 
 class DSAPIContext {
   constructor(appCode, baseUrl) {
@@ -30,4 +29,4 @@ class DSAPIContext {
   getAlgorithm() { return this.algorithm; }
 }
 
-module.exports = DSAPIContext;
+export default DSAPIContext;

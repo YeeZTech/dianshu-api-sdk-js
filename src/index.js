@@ -1,7 +1,9 @@
-const DSAPIContext = require('./dsApiContext');
-const DSAPIClient = require('./dsApiClient');
+import DSAPIContext from './dsApiContext.js';
+import DSAPIClient from './dsApiClient.js';
+import * as crypto from './crypto.js';
 
-module.exports = {
+export {
   DSAPIContext,
-  DSAPIClient
+  DSAPIClient,
+  crypto
 };

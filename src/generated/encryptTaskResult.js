@@ -1,7 +1,6 @@
-const YPCUtils = require("@yeez-tech/meta-encryptor/build/commonjs/utils.cjs");
-const YPCCrypto = YPCUtils.YPCCrypto;
+import { YPCCrypto } from "@yeez-tech/meta-encryptor";
 
-async function encryptTaskResult(publicKeyHex, pkgBytes) {
+export async function encryptTaskResult(publicKeyHex, pkgBytes) {
   // publicKeyHex: hex string
   // pkgBytes: string or Buffer
   const ots = YPCCrypto.generatePrivateKey();
@@ -13,7 +12,3 @@ async function encryptTaskResult(publicKeyHex, pkgBytes) {
   );
   return secret.toString("hex");
 }
-
-module.exports = {
-  encryptTaskResult
-};

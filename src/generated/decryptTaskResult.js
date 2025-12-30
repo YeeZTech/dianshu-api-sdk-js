@@ -1,7 +1,6 @@
-const YPCUtils = require("@yeez-tech/meta-encryptor/build/commonjs/utils.cjs");
-const YPCCrypto = YPCUtils.YPCCrypto;
+import { YPCCrypto } from "@yeez-tech/meta-encryptor";
 
-async function decryptTaskResult(privateKeyHex, taskResultHex, encoding = 'utf-8') {
+export async function decryptTaskResult(privateKeyHex, taskResultHex, encoding = 'utf-8') {
   const res = YPCCrypto.decryptMessage(
     Buffer.from(privateKeyHex, "hex"),
     Buffer.from(taskResultHex, "hex")
@@ -13,5 +12,3 @@ async function decryptTaskResult(privateKeyHex, taskResultHex, encoding = 'utf-8
   }
   return res.toString();
 }
-
-module.exports = { decryptTaskResult };
