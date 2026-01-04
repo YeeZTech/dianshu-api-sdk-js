@@ -16,7 +16,8 @@
     "build": "rollup -c",
     "test": "node test/run.js",
     "test:dopost": "node test/test_dopost.js",
-    "test:doget": "node test/test_doget.js"
+    "test:doget": "node test/test_doget.js",
+    "test:doasync": "node test/test_doasync.js"
   },
   "files": [
     "dist",
@@ -31,14 +32,12 @@
   "author": "generated",
   "license": "MIT",
   "dependencies": {
-    "@yeez-tech/meta-encryptor": "^4.2.0"
+    "@yeez-tech/meta-encryptor": "^4.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "rollup": "^4.9.0"
   }
 }
-
-

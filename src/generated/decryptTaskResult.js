@@ -1,14 +1,15 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
+import { bytesToHex, bytesToUtf8, hexToBytes } from "../utils/bytes.js";
 
 export async function decryptTaskResult(privateKeyHex, taskResultHex, encoding = 'utf-8') {
   const res = YPCCrypto.decryptMessage(
-    Buffer.from(privateKeyHex, "hex"),
-    Buffer.from(taskResultHex, "hex")
+    hexToBytes(privateKeyHex),
+    hexToBytes(taskResultHex)
   );
   if (encoding === "hex") {
-    return res.toString("hex");
+    return bytesToHex(res);
   } else if (encoding === "utf-8" || encoding === "utf8") {
-    return res.toString("utf-8");
+    return bytesToUtf8(res);
   }
-  return res.toString();
+  return bytesToUtf8(res);
 }

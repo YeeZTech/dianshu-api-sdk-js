@@ -1,14 +1,18 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
+import { bytesToHex, hexToBytes, utf8ToBytes } from "../utils/bytes.js";
 
 export async function encryptTaskResult(publicKeyHex, pkgBytes) {
   // publicKeyHex: hex string
   // pkgBytes: string or Buffer
   const ots = YPCCrypto.generatePrivateKey();
+  const bytes = typeof pkgBytes === 'string'
+    ? utf8ToBytes(pkgBytes)
+    : (pkgBytes instanceof Uint8Array ? pkgBytes : new Uint8Array(pkgBytes));
   const secret = YPCCrypto._encryptMessage(
-    Buffer.from(publicKeyHex, "hex"),
+    hexToBytes(publicKeyHex),
     ots,
-    pkgBytes,
+    bytes,
     0x2
   );
-  return secret.toString("hex");
+  return bytesToHex(secret);
 }
