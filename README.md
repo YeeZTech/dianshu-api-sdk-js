@@ -1,55 +1,142 @@
-# Dianshu JS SDK (generated skeleton)
+# Dianshu API JS SDK
 
-这是为 `dianshu-api-vue-sdk` 中生成的 JS SDK 起始骨架。此版本提供：
+典枢数据平台 API 的 JavaScript SDK，支持浏览器和 Node.js 环境。
 
-- `src/crypto.js`：加解密封装，优先使用外部 `libspec` 包（如果安装），否则回退到 Node 内置的 AES-256-GCM 实现。
-- `src/apiClient.js`：API 客户端骨架（包含请求构建和可选加密示例）。
-- `src/index.js`：导出入口。
-- `test/run.js`：快速自测脚本，验证加/解密能否正确回环。
-
-
-快速开始：
-
-1. 安装依赖：
+## 安装
 
 ```bash
-npm install
+npm install dianshu-api-js-sdk
 ```
 
-2. 使用示例（与 Java SDK 的 Test.main 等价）
+## 快速开始
 
-保存为 `examples/usage.js` 并运行：
-
-```bash
-node examples/usage.js
-```
-
-示例（Node/CommonJS）：
+### 1. 初始化上下文和客户端
 
 ```javascript
-const { DSAPIContext, DSAPIClient } = require('./src');
+import { DSAPIContext, DSAPIClient } from "dianshu-api-js-sdk";
 
-async function main() {
-	const ctx = new DSAPIContext('你的appCode', 'https://test-data-api.dianshudata.com');
-	// 可选：提前初始化以避免首次调用的额外网络延迟
-	const client = new DSAPIClient('你的apiId', ctx);
-	await client.init(); // 可省略，客户端会在首次调用时自动懒加载
-
-	const dto = { bodyParams: [ { paramName: 'name', paramValue: '张三' } ] };
-	const result = await client.doPost(dto);
-	console.log('接口返回结果:', result);
-}
-
-main();
+const ctx = new DSAPIContext(
+  "你的appCode",
+  "https://test-data-api.dianshudata.com"
+);
+const client = new DSAPIClient("你的apiId", ctx);
 ```
 
+### 2. 同步调用（POST）
 
-说明与下一步：
+```javascript
+const dto = {
+  bodyParams: [{ paramName: "name", paramValue: "张三" }],
+};
 
-- 当前骨架不包含从 Java SDK 自动生成的 API 对应实现（因为未能读取到 `dianshu-api-sdk` 源码）。如需完整映射，请提供 `dianshu-api-sdk` 项目源码或 Git 仓库地址及分支（你提到的 `develop_2.9.2`），我会从 Java 类签名生成对应的 JS 接口实现与类型注释。
-- 如果你希望强制使用 `libspec` 的 API（而不是回退实现），请把 `libspec` 的 npm 包名与其加/解密 API 说明发给我，或在工程中安装该包后我会调整 `src/crypto.js` 以使用正确的调用方式。
+const result = await client.doPost(dto);
+console.log("返回结果:", result);
+```
 
-如果准备好了我会继续：
-1) 读取 `dianshu-api-sdk` 的 Java 源（或提供路径/仓库），
-2) 分析关键类和方法，
-3) 自动生成对应的 JS API 层并添加更完整的测试。
+### 3. 同步调用（GET）
+
+```javascript
+const dto = {
+  queryParams: [{ paramName: "id", paramValue: "123" }],
+};
+
+const result = await client.doGet(dto);
+console.log("返回结果:", result);
+```
+
+### 4. 异步调用
+
+异步调用分为两步：先提交请求获取 `DSSeqNO`，然后轮询结果接口。
+
+#### 方式一：手动轮询
+
+```javascript
+// 第一步：提交异步请求，获取 DSSeqNO
+const requestDto = {
+  bodyParams: [{ paramName: "name", paramValue: "张三" }],
+};
+const dsSeqNo = await client.doAsyncRequestPost(requestDto);
+console.log("DSSeqNO:", dsSeqNo);
+
+// 第二步：轮询结果接口
+const loopTime = 15; // 最多轮询次数
+const intervalMs = 5000; // 轮询间隔（毫秒）
+
+for (let i = 0; i < loopTime; i++) {
+  const result = await client.doAsyncResultPost(dsSeqNo);
+
+  // 判断结果状态
+  if (typeof result === "string") {
+    const parsed = JSON.parse(result);
+    const code = parsed.code ?? parsed.resultCode;
+
+    if (code === 102) {
+      // 处理中，继续轮询
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      continue;
+    }
+
+    if (code === 200 || code === 100) {
+      // 成功，返回结果
+      console.log("最终结果:", result);
+      break;
+    }
+  }
+
+  // 其他情况直接返回
+  console.log("最终结果:", result);
+  break;
+}
+```
+
+#### 方式二：查询已有 DSSeqNO 的结果
+
+如果已有 `DSSeqNO`，可以直接查询结果：
+
+```javascript
+const dto = {
+  bodyParams: [{ paramName: "DSSeqNO", paramValue: "你的DSSeqNO" }],
+};
+const result = await client.doAsyncResult(dto);
+console.log("结果:", result);
+```
+
+## API 说明
+
+### DSAPIContext
+
+应用上下文，管理密钥对和加密算法。
+
+```javascript
+const ctx = new DSAPIContext(appCode, baseUrl);
+```
+
+- `appCode`: 应用代码
+- `baseUrl`: API 基础地址（如：`https://test-data-api.dianshudata.com`）
+
+### DSAPIClient
+
+API 客户端，提供同步和异步调用方法。
+
+#### 同步方法
+
+- `doPost(dto)`: POST 请求
+  - `dto.bodyParams`: 请求体参数数组，格式：`[{ paramName, paramValue }, ...]`
+- `doGet(dto)`: GET 请求
+  - `dto.queryParams`: 查询参数数组，格式：`[{ paramName, paramValue }, ...]`
+
+#### 异步方法
+
+- `doAsyncRequestPost(dto)`: 提交异步 POST 请求，返回 `DSSeqNO`
+- `doAsyncRequestGet(dto)`: 提交异步 GET 请求，返回 `DSSeqNO`
+- `doAsyncResultPost(dsSeqNo, dto)`: 查询异步结果（POST 方式）
+- `doAsyncResult(dto)`: 查询异步结果（兼容方法，从 `dto.bodyParams` 中提取 `DSSeqNO`）
+
+## 环境支持
+
+- **Node.js**: 支持 CommonJS 和 ESM
+- **浏览器**: 支持现代浏览器（需要全局 `fetch` API）
+
+## License
+
+MIT

@@ -8,11 +8,11 @@ export async function encryptTaskResult(publicKeyHex, pkgBytes) {
   const bytes = typeof pkgBytes === 'string'
     ? utf8ToBytes(pkgBytes)
     : (pkgBytes instanceof Uint8Array ? pkgBytes : new Uint8Array(pkgBytes));
-  const secret = YPCCrypto._encryptMessage(
+  const secret = await Promise.resolve(YPCCrypto._encryptMessage(
     hexToBytes(publicKeyHex),
     ots,
     bytes,
     0x2
-  );
+  ));
   return bytesToHex(secret);
 }

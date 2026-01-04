@@ -32,7 +32,7 @@
   "author": "generated",
   "license": "MIT",
   "dependencies": {
-    "@yeez-tech/meta-encryptor": "^4.3.0"
+    "@yeez-tech/meta-encryptor": "^4.3.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.0",
