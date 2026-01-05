@@ -1,5 +1,4 @@
-import * as credentialAdapter from './generated/CredentialAdapter.js';
-import { bytesToHex, utf8ToBytes } from './utils/bytes.js';
+import { bytesToHex, utf8ToBytes } from './utils/Bytes.js';
 import log from 'loglevel';
 
 // resolve fetch similar to apiClient
