@@ -1,5 +1,5 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
-import { bytesToHex, hexToBytes, utf8ToBytes } from "../utils/bytes.js";
+import { bytesToHex, hexToBytes, utf8ToBytes } from "../utils/Bytes.js";
 
 export async function encryptTaskResult(publicKeyHex, pkgBytes) {
   // publicKeyHex: hex string

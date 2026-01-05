@@ -1,6 +1,6 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
-import { bytesToHex, hexToBytes } from "../utils/bytes.js";
-import { dsLog, dsDebugSecretsEnabled, dsMask } from "../debug.js";
+import { bytesToHex, hexToBytes } from "../utils/Bytes.js";
+import log from 'loglevel';
 
 export async function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianPublicKeyHex, enclaveHashStr, dataHash) {
   const skey = hexToBytes(userPrivateKeyHex);
@@ -9,7 +9,7 @@ export async function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianP
   const sig = await Promise.resolve(YPCCrypto.generateSignature(skey, dataPkey, enclave_hash));
   const secret = await Promise.resolve(YPCCrypto.generateForwardSecretKey(dataPkey, skey));
   const secretLen = secret && (secret.length ?? secret.byteLength ?? 0);
-  dsLog('YPCCrypto.generateForwardSecretKey (auditParam)', {
+  log.debug('YPCCrypto.generateForwardSecretKey (auditParam)', {
     dataPkeyLen: dataPkey.length,
     skeyLen: skey.length,
     outType: secret && secret.constructor ? secret.constructor.name : typeof secret,
@@ -26,9 +26,9 @@ export async function buildAuditParam(userPrivateKeyHex, userPublicKeyHex, dianP
     shuKeyForwardSignature: bytesToHex(sig),
     allowedEnclaveHash: enclaveHashStr
   };
-  dsLog('buildAuditParam result', {
-    encryptedShuPrivateKey: dsDebugSecretsEnabled() ? reqData.encryptedShuPrivateKey : dsMask(reqData.encryptedShuPrivateKey),
-    shuKeyForwardSignature: dsDebugSecretsEnabled() ? reqData.shuKeyForwardSignature : dsMask(reqData.shuKeyForwardSignature),
+  log.debug('buildAuditParam result', {
+    encryptedShuPrivateKey: '[masked]',
+    shuKeyForwardSignature: '[masked]',
   });
   return reqData;
 }

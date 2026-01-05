@@ -1,6 +1,6 @@
-import * as credentialAdapter from './generated/credentialAdapter.js';
+import * as credentialAdapter from './generated/CredentialAdapter.js';
 import { bytesToHex, utf8ToBytes } from './utils/bytes.js';
-import { dsLog, dsDebugSecretsEnabled, dsMask } from './debug.js';
+import log from 'loglevel';
 
 // resolve fetch similar to apiClient
 let fetchImpl = null;
@@ -46,21 +46,21 @@ class DSAPIClient {
     const url = `${this.ctx.getBaseUrl()}/api/privateKey`;
     const body = { appCode: this.ctx.getAppCode(), apiId: this.apiId };
 
-    dsLog('ensureFideliusConfig request', { url, body });
+    log.debug('ensureFideliusConfig request', { url, body });
 
     const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const text = await res.text();
-    dsLog('ensureFideliusConfig response', { status: res.status, text });
+    log.debug('ensureFideliusConfig response', { status: res.status, text });
     let parsed;
     try { parsed = JSON.parse(text); } catch (e) { throw new Error('invalid fidelius config response: ' + text); }
     const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);
     if (!ok) throw new Error('fidelius config error: ' + text);
     this.fideliusConfig = parsed.data;
 
-    dsLog('ensureFideliusConfig ok', {
+    log.debug('ensureFideliusConfig ok', {
       apiHash: this.fideliusConfig && this.fideliusConfig.apiHash,
-      dianPkey: this.fideliusConfig && (dsDebugSecretsEnabled() ? this.fideliusConfig.dianPkey : dsMask(this.fideliusConfig.dianPkey)),
-      enclaveHash: this.fideliusConfig && (dsDebugSecretsEnabled() ? this.fideliusConfig.enclaveHash : dsMask(this.fideliusConfig.enclaveHash)),
+      dianPkey: this.fideliusConfig && (this.fideliusConfig.dianPkey),
+      enclaveHash: this.fideliusConfig && (this.fideliusConfig.enclaveHash),
     });
 
     return this.fideliusConfig;
@@ -83,14 +83,13 @@ class DSAPIClient {
       const paramDto = { api_hash: fid.apiHash, api_method: 'POST', api_body: bodyMap };
       const jsonBody = JSON.stringify(paramDto);
 
-      dsLog('doPost ctx', {
+      log.debug('doPost ctx', {
         apiId: this.apiId,
         appCode: this.ctx.getAppCode(),
         baseUrl: this.ctx.getBaseUrl(),
-        publicKey: dsDebugSecretsEnabled() ? this.ctx.getPublicKey() : dsMask(this.ctx.getPublicKey()),
-        privateKey: dsDebugSecretsEnabled() ? this.ctx.getPrivateKey() : dsMask(this.ctx.getPrivateKey()),
+        publicKey: this.ctx.getPublicKey()),
       });
-      dsLog('doPost paramDto', dsDebugSecretsEnabled() ? paramDto : { api_hash: fid.apiHash, api_method: 'POST', api_body: bodyMap });
+      log.debug('doPost paramDto', paramDto);
 
       // encrypt with public key
       const encryptedParamHex = await this.ctx.getAlgorithm().encryptMessage(this.ctx.getPublicKey(), jsonBody);
@@ -103,7 +102,7 @@ class DSAPIClient {
       const dataHash = fid.dianPkey + fid.enclaveHash;
       const shuInfo = await this.ctx.getAlgorithm().auditParam(this.ctx.getPrivateKey(), this.ctx.getPublicKey(), fid.dianPkey, fid.enclaveHash, dataHash);
       if (!shuInfo || (typeof shuInfo === 'object' && !shuInfo.encryptedShuPrivateKey)) {
-        dsLog('doPost shuInfo empty/invalid', shuInfo);
+        log.debug('doPost shuInfo empty/invalid', shuInfo);
         throw new Error('auditParam returned empty/invalid shuInfo (encryptedShuPrivateKey missing)');
       }
 
@@ -115,15 +114,15 @@ class DSAPIClient {
         shuInfo: typeof shuInfo === 'string' ? shuInfo : JSON.stringify(shuInfo)
       };
 
-      dsLog('doPost encrypted', {
-        encryptedParamHex: dsDebugSecretsEnabled() ? encryptedParamHex : dsMask(encryptedParamHex),
-        paramsHex: dsDebugSecretsEnabled() ? paramsHex : dsMask(paramsHex),
-        shuInfo: dsDebugSecretsEnabled() ? headers.shuInfo : dsMask(headers.shuInfo),
+      log.debug('doPost encrypted', {
+        encryptedParamHex: encryptedParamHex,
+        paramsHex: paramsHex,
+        shuInfo: headers.shuInfo,
       });
-      dsLog('doPost request', {
+      log.debug('doPost request', {
         url,
-        headers: dsDebugSecretsEnabled() ? headers : { ...headers, credential: dsMask(headers.credential), shuInfo: dsMask(headers.shuInfo) },
-        body: { params: dsDebugSecretsEnabled() ? paramsHex : dsMask(paramsHex) },
+        headers: { ...headers, credential: '[masked]', shuInfo: '[masked]' },
+        body: { params: paramsHex },
       });
 
       const fetch = await getFetchImpl();
@@ -134,14 +133,14 @@ class DSAPIClient {
 
       const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ params: paramsHex }) });
       const text = await resp.text();
-      dsLog('doPost response', { status: resp.status, text });
+      log.debug('doPost response', { status: resp.status, text });
       let parsed;
       try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
       const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);
       if (ok && parsed.data && parsed.data.encrypted_result) {
-        dsLog('doPost encrypted_result', dsDebugSecretsEnabled() ? parsed.data.encrypted_result : dsMask(parsed.data.encrypted_result));
+        log.debug('doPost encrypted_result', parsed.data.encrypted_result);
         const plain = await this.ctx.getAlgorithm().decryptMessage(this.ctx.getPrivateKey(), parsed.data.encrypted_result);
-        dsLog('doPost decrypted', dsDebugSecretsEnabled() ? plain : (typeof plain === 'string' ? plain.slice(0, 200) : plain));
+        log.debug('doPost decrypted', typeof plain === 'string' ? plain.slice(0, 200) : plain);
         return plain;
       }
       // return raw response text
@@ -163,14 +162,13 @@ class DSAPIClient {
       const paramDto = { api_hash: fid.apiHash, api_method: 'GET', api_param: paramMap };
       const jsonBody = JSON.stringify(paramDto);
 
-      dsLog('doGet ctx', {
+      log.debug('doGet ctx', {
         apiId: this.apiId,
         appCode: this.ctx.getAppCode(),
         baseUrl: this.ctx.getBaseUrl(),
-        publicKey: dsDebugSecretsEnabled() ? this.ctx.getPublicKey() : dsMask(this.ctx.getPublicKey()),
-        privateKey: dsDebugSecretsEnabled() ? this.ctx.getPrivateKey() : dsMask(this.ctx.getPrivateKey()),
+        publicKey: this.ctx.getPublicKey()),
       });
-      dsLog('doGet paramDto', dsDebugSecretsEnabled() ? paramDto : { api_hash: fid.apiHash, api_method: 'GET', api_param: paramMap });
+      log.debug('doGet paramDto', paramDto);
       // encrypt with public key
       const encryptedParamHex = await this.ctx.getAlgorithm().encryptMessage(this.ctx.getPublicKey(), jsonBody);
       if (!encryptedParamHex) {
@@ -182,7 +180,7 @@ class DSAPIClient {
       const dataHash = fid.dianPkey + fid.enclaveHash;
       const shuInfo = await this.ctx.getAlgorithm().auditParam(this.ctx.getPrivateKey(), this.ctx.getPublicKey(), fid.dianPkey, fid.enclaveHash, dataHash);
       if (!shuInfo || (typeof shuInfo === 'object' && !shuInfo.encryptedShuPrivateKey)) {
-        dsLog('doGet shuInfo empty/invalid', shuInfo);
+        log.debug('doGet shuInfo empty/invalid', shuInfo);
         throw new Error('auditParam returned empty/invalid shuInfo (encryptedShuPrivateKey missing)');
       }
 
@@ -194,15 +192,15 @@ class DSAPIClient {
         shuInfo: typeof shuInfo === 'string' ? shuInfo : JSON.stringify(shuInfo)
       };
 
-      dsLog('doGet encrypted', {
-        encryptedParamHex: dsDebugSecretsEnabled() ? encryptedParamHex : dsMask(encryptedParamHex),
-        paramsHex: dsDebugSecretsEnabled() ? paramsHex : dsMask(paramsHex),
-        shuInfo: dsDebugSecretsEnabled() ? headers.shuInfo : dsMask(headers.shuInfo),
+      log.debug('doGet encrypted', {
+        encryptedParamHex: encryptedParamHex,
+        paramsHex: paramsHex,
+        shuInfo: headers.shuInfo,
       });
-      dsLog('doGet request', {
+      log.debug('doGet request', {
         url,
-        headers: dsDebugSecretsEnabled() ? headers : { ...headers, credential: dsMask(headers.credential), shuInfo: dsMask(headers.shuInfo) },
-        query: { params: dsDebugSecretsEnabled() ? paramsHex : dsMask(paramsHex) },
+        headers: { ...headers, credential: '[masked]', shuInfo: '[masked]' },
+        query: { params: paramsHex },
       });
 
       const fetch = await getFetchImpl();
@@ -215,14 +213,14 @@ class DSAPIClient {
       const reqUrl = `${url}?params=${encodeURIComponent(paramsHex)}`;
       const resp = await fetch(reqUrl, { method: 'GET', headers });
       const text = await resp.text();
-      dsLog('doGet response', { status: resp.status, text });
+      log.debug('doGet response', { status: resp.status, text });
       let parsed;
       try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
       const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);
       if (ok && parsed.data && parsed.data.encrypted_result) {
-        dsLog('doGet encrypted_result', dsDebugSecretsEnabled() ? parsed.data.encrypted_result : dsMask(parsed.data.encrypted_result));
+        log.debug('doGet encrypted_result', parsed.data.encrypted_result);
         const plain = await this.ctx.getAlgorithm().decryptMessage(this.ctx.getPrivateKey(), parsed.data.encrypted_result);
-        dsLog('doGet decrypted', dsDebugSecretsEnabled() ? plain : (typeof plain === 'string' ? plain.slice(0, 200) : plain));
+        log.debug('doGet decrypted', typeof plain === 'string' ? plain.slice(0, 200) : plain);
         return plain;
       }
       return text;
@@ -246,7 +244,7 @@ class DSAPIClient {
     const paramDto = { api_hash: fid.apiHash, api_method: 'POST', api_body: bodyMap };
     const jsonBody = JSON.stringify(paramDto);
 
-    dsLog('doAsyncRequestPost paramDto', dsDebugSecretsEnabled() ? paramDto : { api_hash: fid.apiHash, api_method: 'POST', api_body: bodyMap });
+    log.debug('doAsyncRequestPost paramDto', paramDto);
 
     const encryptedParamHex = await this.ctx.getAlgorithm().encryptMessage(this.ctx.getPublicKey(), jsonBody);
     if (!encryptedParamHex) throw new Error('encryptMessage returned empty encryptedParamHex');
@@ -267,17 +265,17 @@ class DSAPIClient {
       shuInfo: typeof shuInfo === 'string' ? shuInfo : JSON.stringify(shuInfo)
     };
 
-    dsLog('doAsyncRequestPost request', {
+    log.debug('doAsyncRequestPost request', {
       url,
-      headers: dsDebugSecretsEnabled() ? headers : { ...headers, credential: dsMask(headers.credential), shuInfo: dsMask(headers.shuInfo) },
-      body: { params: dsDebugSecretsEnabled() ? paramsHex : dsMask(paramsHex) },
+      headers: { ...headers, credential: '[masked]', shuInfo: '[masked]' },
+      body: { params: paramsHex },
     });
 
     const fetch = await getFetchImpl();
     if (!fetch) return { url, method: 'POST', headers, body: { params: paramsHex } };
     const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ params: paramsHex }) });
     const text = await resp.text();
-    dsLog('doAsyncRequestPost response', { status: resp.status, text });
+    log.debug('doAsyncRequestPost response', { status: resp.status, text });
     let parsed;
     try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
     const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);
@@ -296,7 +294,7 @@ class DSAPIClient {
     const paramDto = { api_hash: fid.apiHash, api_method: 'GET', api_param: paramMap };
     const jsonBody = JSON.stringify(paramDto);
 
-    dsLog('doAsyncRequestGet paramDto', dsDebugSecretsEnabled() ? paramDto : { api_hash: fid.apiHash, api_method: 'GET', api_param: paramMap });
+    log.debug('doAsyncRequestGet paramDto', paramDto);
 
     const encryptedParamHex = await this.ctx.getAlgorithm().encryptMessage(this.ctx.getPublicKey(), jsonBody);
     if (!encryptedParamHex) throw new Error('encryptMessage returned empty encryptedParamHex');
@@ -320,10 +318,10 @@ class DSAPIClient {
     const fetch = await getFetchImpl();
     if (!fetch) return { url, method: 'GET', headers, params: { params: paramsHex } };
     const reqUrl = `${url}?params=${encodeURIComponent(paramsHex)}`;
-    dsLog('doAsyncRequestGet request', { url: reqUrl });
+    log.debug('doAsyncRequestGet request', { url: reqUrl });
     const resp = await fetch(reqUrl, { method: 'GET', headers });
     const text = await resp.text();
-    dsLog('doAsyncRequestGet response', { status: resp.status, text });
+    log.debug('doAsyncRequestGet response', { status: resp.status, text });
     let parsed;
     try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
     const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);
@@ -365,16 +363,16 @@ class DSAPIClient {
     };
     const body = { DSSeqNO: dsSeqNo, params: paramsHex };
 
-    dsLog('doAsyncResultPost request', {
+    log.debug('doAsyncResultPost request', {
       url,
-      body: dsDebugSecretsEnabled() ? body : { DSSeqNO: dsSeqNo, params: dsMask(paramsHex) },
+      body: { DSSeqNO: dsSeqNo, params: '[masked]' },
     });
 
     const fetch = await getFetchImpl();
     if (!fetch) return { url, method: 'POST', headers, body };
     const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
     const text = await resp.text();
-    dsLog('doAsyncResultPost response', { status: resp.status, text });
+    log.debug('doAsyncResultPost response', { status: resp.status, text });
     let parsed;
     try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
     const ok = parsed && (parsed.code === 100 || parsed.resultCode === 100);

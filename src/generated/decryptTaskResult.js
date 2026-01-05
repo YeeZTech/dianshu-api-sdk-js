@@ -1,5 +1,5 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
-import { bytesToHex, bytesToUtf8, hexToBytes } from "../utils/bytes.js";
+import { bytesToHex, bytesToUtf8, hexToBytes } from "../utils/Bytes.js";
 
 export async function decryptTaskResult(privateKeyHex, taskResultHex, encoding = 'utf-8') {
   const res = await Promise.resolve(YPCCrypto.decryptMessage(

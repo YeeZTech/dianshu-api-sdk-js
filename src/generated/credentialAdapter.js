@@ -1,6 +1,6 @@
 import { YPCCrypto } from "@yeez-tech/meta-encryptor";
-import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "../utils/bytes.js";
-import { dsLog, dsDebugSecretsEnabled, dsMask } from "../debug.js";
+import { bytesToHex, bytesToUtf8, hexToBytes, utf8ToBytes } from "../utils/Bytes.js";
+import log from 'loglevel';
 
 export async function encryptMessage(publicKeyHex, content) {
   // Use generated ots (one-time secret) similar to node scripts
@@ -9,7 +9,7 @@ export async function encryptMessage(publicKeyHex, content) {
   const msgBytes = utf8ToBytes(content);
   const secretBuf = await Promise.resolve(YPCCrypto._encryptMessage(pkey, ots, msgBytes, 0x2));
   const outLen = secretBuf && (secretBuf.length ?? secretBuf.byteLength ?? 0);
-  dsLog('YPCCrypto._encryptMessage (credentialAdapter)', {
+  log.debug('YPCCrypto._encryptMessage (credentialAdapter)', {
     pkeyLen: pkey.length,
     otsLen: ots && (ots.length ?? ots.byteLength ?? 0),
     msgLen: msgBytes.length,
@@ -20,7 +20,7 @@ export async function encryptMessage(publicKeyHex, content) {
     throw new Error(`YPCCrypto._encryptMessage returned empty (outType=${secretBuf && secretBuf.constructor ? secretBuf.constructor.name : typeof secretBuf}, outLen=${outLen})`);
   }
   const hex = bytesToHex(secretBuf);
-  dsLog('encryptMessage result', dsDebugSecretsEnabled() ? hex : dsMask(hex));
+  log.debug('encryptMessage result', '[masked]');
   return hex;
 }
 
@@ -29,7 +29,7 @@ export async function decryptMessage(privateKeyHex, secretHex, encoding = 'utf-8
   const msgBuf = hexToBytes(secretHex);
   const res = await Promise.resolve(YPCCrypto.decryptMessage(skey, msgBuf));
   const outLen = res && (res.length ?? res.byteLength ?? 0);
-  dsLog('YPCCrypto.decryptMessage (credentialAdapter)', {
+  log.debug('YPCCrypto.decryptMessage (credentialAdapter)', {
     skeyLen: skey.length,
     msgLen: msgBuf.length,
     outType: res && res.constructor ? res.constructor.name : typeof res,

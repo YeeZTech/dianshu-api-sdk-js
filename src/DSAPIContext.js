@@ -1,6 +1,6 @@
 import { YPCCrypto } from '@yeez-tech/meta-encryptor';
-import * as credentialAdapter from './generated/credentialAdapter.js';
-import * as audit from './generated/auditParam.js';
+import * as credentialAdapter from './generated/CredentialAdapter.js';
+import * as audit from './generated/AuditParam.js';
 import { bytesToHex } from './utils/bytes.js';
 import { dsLog, dsDebugSecretsEnabled, dsMask } from './debug.js';
 
