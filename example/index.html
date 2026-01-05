@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dianshu API JS SDK Vue 示例</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      // 与 meta-encryptor/_try 一致：先注入 Buffer（给 keccak256/bn.js 等依赖用），再加载应用入口
+      import { Buffer as BufferPolyfill } from 'buffer';
+      if (!window.Buffer) {
+        window.Buffer = BufferPolyfill;
+        globalThis.Buffer = BufferPolyfill;
+      }
+      import('/src/main.ts');
+    </script>
+  </body>
+</html>
+
+
