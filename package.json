@@ -1,6 +1,6 @@
 {
   "name": "@yeez-tech/dianshu-api-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Javascript implementation for Dianshu API SDK.",
   "type": "module",
   "main": "dist/index.cjs",
