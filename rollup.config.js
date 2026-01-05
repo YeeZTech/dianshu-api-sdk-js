@@ -61,6 +61,7 @@ const browserConfig = {
       preferBuiltins: false,
       exportConditions: ['browser', 'default']
     }),
+    commonjs(),
   ],
   output: [
     {
