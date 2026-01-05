@@ -1,25 +1,27 @@
 {
   "name": "dianshu-api-js-sdk",
   "version": "0.0.1",
-  "description": "JS SDK for Dianshu API (generated skeleton). Replace or extend implementations based on Java SDK.",
+  "description": "Javascript implementation for Dianshu API SDK.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
+      "browser": {
+        "import": "./build/es/index.browser.js"
+      },
+      "node": {
+        "import": "./build/es/index.js",
+        "require": "./build/commonjs/index.cjs"
+      },
+      "default": "./build/es/index.js"
     }
   },
   "scripts": {
     "build": "rollup -c",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "test:dopost": "node test/test_dopost.js",
-    "test:doget": "node test/test_doget.js",
-    "test:doasync": "node test/test_doasync.js"
+    "test": "node run test:node && node run test:browser",
+    "test:node": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.node.mjs",
+    "test:browser": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.browser.mjs"
   },
   "files": [
     "dist",
@@ -35,14 +37,18 @@
   "license": "MIT",
   "dependencies": {
     "@yeez-tech/meta-encryptor": "^4.3.2",
+    "buffer": "^6.0.3",
     "loglevel": "^1.9.2"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
+    "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-commonjs": "^26.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "jest": "^30.2.0",
-    "rollup": "^4.9.0"
+    "jest-environment-jsdom": "^30.2.0",
+    "rollup": "^4.9.0",
+    "rollup-plugin-polyfill-node": "^0.13.0"
   }
 }

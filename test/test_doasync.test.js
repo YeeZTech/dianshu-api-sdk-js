@@ -1,4 +1,3 @@
-import { describe, it, expect } from '@jest/globals';
 import { DSAPIContext, DSAPIClient } from '../src/index.js';
 
 async function sleep(ms) {
