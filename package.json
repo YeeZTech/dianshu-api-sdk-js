@@ -36,7 +36,11 @@
     "sdk",
     "api"
   ],
-  "author": "generated",
+  "repository": {
+        "type": "git",
+        "url": "git+https://github.com/YeeZTech/dianshu-api-sdk-js.git"
+    },
+  "author": "YeeZTechcontact@yeez.tech",
   "license": "MIT",
   "dependencies": {
     "@yeez-tech/meta-encryptor": "^4.3.2",
@@ -56,5 +60,11 @@
     "jest-environment-jsdom": "^30.2.0",
     "rollup": "^4.9.0",
     "rollup-plugin-polyfill-node": "^0.13.0"
-  }
+  },
+  "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": "^18.0.0 || >= 18.0.0"
+    }
 }
