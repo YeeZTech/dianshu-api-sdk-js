@@ -1,6 +1,6 @@
 {
   "name": "@yeez-tech/dianshu-api-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Javascript implementation for Dianshu API SDK.",
   "type": "module",
   "main": "dist/index.cjs",
@@ -37,9 +37,9 @@
     "api"
   ],
   "repository": {
-        "type": "git",
-        "url": "git+https://github.com/YeeZTech/dianshu-api-sdk-js.git"
-    },
+    "type": "git",
+    "url": "git+https://github.com/YeeZTech/dianshu-api-sdk-js.git"
+  },
   "author": "YeeZTechcontact@yeez.tech",
   "license": "MIT",
   "dependencies": {
@@ -62,9 +62,9 @@
     "rollup-plugin-polyfill-node": "^0.13.0"
   },
   "publishConfig": {
-        "access": "public"
-    },
-    "engines": {
-        "node": "^18.0.0 || >= 18.0.0"
-    }
+    "access": "public"
+  },
+  "engines": {
+    "node": "^18.0.0 || >= 18.0.0"
+  }
 }
