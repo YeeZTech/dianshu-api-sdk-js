@@ -26,5 +26,5 @@ describe('doPost integration test', () => {
     
     const end = Date.now();
     console.log('Total time(ms):', end - start);
-  });
+  }, 50000);
 });

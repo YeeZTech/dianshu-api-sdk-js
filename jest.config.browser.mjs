@@ -1,6 +1,10 @@
 
 export default {
   testEnvironment: 'jsdom',
+  moduleNameMapper: {
+    '^@yeez-tech/meta-encryptor$': '<rootDir>/node_modules/@yeez-tech/meta-encryptor/build/es/index.browser.js'
+  },
+
   testMatch: [
     "**/test/*.test.js"
   ],

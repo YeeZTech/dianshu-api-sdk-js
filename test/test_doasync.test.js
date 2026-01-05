@@ -112,5 +112,5 @@ describe('doAsync integration test', () => {
     }
 
     throw new Error(`Async result not ready after ${loopTime} attempts`);
-  });
+  }, 50000);
 });
