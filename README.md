@@ -5,7 +5,7 @@
 ## 安装
 
 ```bash
-npm install dianshu-api-js-sdk
+npm install dianshu-api-sdk
 ```
 
 ## 快速开始
@@ -13,7 +13,7 @@ npm install dianshu-api-js-sdk
 ### 1. 初始化上下文和客户端
 
 ```javascript
-import { DSAPIContext, DSAPIClient } from "dianshu-api-js-sdk";
+import { DSAPIContext, DSAPIClient } from "dianshu-api-sdk";
 
 const ctx = new DSAPIContext(
   "你的appCode",

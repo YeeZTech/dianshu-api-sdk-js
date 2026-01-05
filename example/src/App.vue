@@ -5,7 +5,7 @@
     <section class="card">
       <h2>POST 调用测试（与 test_dopost.js 相同的 key）</h2>
       <p class="desc">
-        点击下方按钮，将通过 <code>dianshu-api-js-sdk</code> 调用典枢测试环境 POST 接口，
+        点击下方按钮，将通过 <code>dianshu-api-sdk</code> 调用典枢测试环境 POST 接口，
         使用与 <code>test/test_dopost.js</code> 中相同的 <code>appCode</code> 和 <code>apiId</code>。
       </p>
 
@@ -34,7 +34,7 @@
     <section class="card">
       <h2>异步 API 调用测试（与 test_doasync.js 相同的 key）</h2>
       <p class="desc">
-        点击下方按钮，将通过 <code>dianshu-api-js-sdk</code> 调用典枢测试环境异步接口，
+        点击下方按钮，将通过 <code>dianshu-api-sdk</code> 调用典枢测试环境异步接口，
         使用与 <code>test/test_doasync.js</code> 中相同的 <code>appCode</code> 和 <code>apiId</code>。
         会自动轮询结果接口，直到返回成功或超时。
       </p>
@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { DSAPIContext, DSAPIClient } from 'dianshu-api-js-sdk';
+import { DSAPIContext, DSAPIClient } from 'dianshu-api-sdk';
 
 // Debug 模式控制（浏览器控制台可见）
 // - DS_DEBUG: 打开流程日志（设为 '1' 或 'true' 开启，'0' 或 false 关闭）
