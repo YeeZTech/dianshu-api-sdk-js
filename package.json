@@ -1,5 +1,5 @@
 {
-  "name": "dianshu-api-js-sdk",
+  "name": "@yeez-tech/dianshu-api-js-sdk",
   "version": "0.0.1",
   "description": "Javascript implementation for Dianshu API SDK.",
   "type": "module",
