@@ -87,7 +87,7 @@ class DSAPIClient {
         apiId: this.apiId,
         appCode: this.ctx.getAppCode(),
         baseUrl: this.ctx.getBaseUrl(),
-        publicKey: this.ctx.getPublicKey()),
+        publicKey: this.ctx.getPublicKey(),
       });
       log.debug('doPost paramDto', paramDto);
 
@@ -166,7 +166,7 @@ class DSAPIClient {
         apiId: this.apiId,
         appCode: this.ctx.getAppCode(),
         baseUrl: this.ctx.getBaseUrl(),
-        publicKey: this.ctx.getPublicKey()),
+        publicKey: this.ctx.getPublicKey(),
       });
       log.debug('doGet paramDto', paramDto);
       // encrypt with public key

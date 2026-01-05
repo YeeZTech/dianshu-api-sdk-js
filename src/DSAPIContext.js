@@ -1,8 +1,8 @@
 import { YPCCrypto } from '@yeez-tech/meta-encryptor';
 import * as credentialAdapter from './generated/CredentialAdapter.js';
 import * as audit from './generated/AuditParam.js';
-import { bytesToHex } from './utils/bytes.js';
-import { dsLog, dsDebugSecretsEnabled, dsMask } from './debug.js';
+import { bytesToHex } from './utils/Bytes.js';
+import log from 'loglevel';
 
 class DSAPIContext {
   constructor(appCode, baseUrl) {
@@ -16,11 +16,10 @@ class DSAPIContext {
     this.publicKey = bytesToHex(pub).padStart(128, '0');
     this.privateKey = bytesToHex(sk).padStart(64, '0');
 
-    dsLog('DSAPIContext init', {
+    log.debug('DSAPIContext init', {
       appCode: this.appCode,
       baseUrl: this.baseUrl,
-      publicKey: dsDebugSecretsEnabled() ? this.publicKey : dsMask(this.publicKey),
-      privateKey: dsDebugSecretsEnabled() ? this.privateKey : dsMask(this.privateKey),
+      publicKey: this.publicKey,
     });
 
     this.algorithm = {
