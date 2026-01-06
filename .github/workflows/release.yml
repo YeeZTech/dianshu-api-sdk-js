@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master  # 发布的目标分支
+
+permissions:
+  id-token: write
+  contents: write
+  
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write 
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24' 
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Install Yarn
+      run: npm install -g yarn
+
+    - run: npm install -g npm@latest
+
+    - name: Install
+      run : npm install
+
+    - name: Build project
+      run: npm run build 
+
+    - name: Publish
+      id: changesets
+      uses: changesets/action@v1
+      with:
+        # Note: pnpm install after versioning is necessary to refresh lockfile
+        version: npm run version
+        publish: npm run release
+        commit: '[ci] release'
+        title: '[ci] release'
+      env:
+        # Needs access to push to main
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
