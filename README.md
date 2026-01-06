@@ -8,6 +8,11 @@
 npm install @yeez-tech/dianshu-api-sdk
 ```
 
+### 环境要求
+
+- **Node.js**: >= 18.0.0
+- **npm**: >= 8.0.0
+
 ## 快速开始
 
 ### 获取凭证
@@ -184,8 +189,22 @@ API 客户端，提供同步和异步调用方法。
 
 ## 环境支持
 
-- **Node.js**: 支持 CommonJS 和 ESM
-- **浏览器**: 需要支持全局 `fetch` API 的浏览器（Chrome 42+, Firefox 39+, Safari 10.1+, Edge 14+, Opera 29+）
+### Node.js
+
+- **版本要求**: >= 18.0.0
+- **模块格式**: 支持 CommonJS 和 ESM
+- **依赖**: SDK 会自动安装所需依赖，包括 `@yeez-tech/meta-encryptor`、`buffer`、`loglevel` 等
+
+### 浏览器
+
+- **版本要求**: 需要支持全局 `fetch` API 的浏览器
+- **支持的浏览器**:
+  - Chrome 42+
+  - Firefox 39+
+  - Safari 10.1+
+  - Edge 14+
+  - Opera 29+
+- **依赖**: SDK 的 browser 构建版本已包含必要的 polyfills，通常无需额外配置
 
 ## License
 
