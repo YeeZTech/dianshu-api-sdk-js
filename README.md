@@ -5,21 +5,43 @@
 ## 安装
 
 ```bash
-npm install dianshu-api-sdk
+npm install @yeez-tech/dianshu-api-sdk
 ```
 
 ## 快速开始
 
+### 获取凭证
+
+在使用 SDK 之前，你需要获取以下凭证：
+
+- **appCode**: 应用代码，用于标识你的应用
+- **apiCode**: API 标识，用于标识要调用的具体 API
+
+> 📖 详细获取方式请参考：[如何获取 appCode 和 apiCode](https://help.yeez.tech/docs/bu-zhou-wu-xia-zai-shu-ju)
+
 ### 1. 初始化上下文和客户端
 
-```javascript
-import { DSAPIContext, DSAPIClient } from "dianshu-api-sdk";
+#### 测试环境
 
+```javascript
+import { DSAPIContext, DSAPIClient } from "@yeez-tech/dianshu-api-sdk";
+
+// 测试环境需要指定 baseUrl
 const ctx = new DSAPIContext(
   "你的appCode",
   "https://test-data-api.dianshudata.com"
 );
-const client = new DSAPIClient("你的apiId", ctx);
+const client = new DSAPIClient("你的apiCode", ctx);
+```
+
+#### 正式环境
+
+```javascript
+import { DSAPIContext, DSAPIClient } from "@yeez-tech/dianshu-api-sdk";
+
+// 正式环境不需要传入 baseUrl，使用默认值
+const ctx = new DSAPIContext("你的appCode");
+const client = new DSAPIClient("你的apiCode", ctx);
 ```
 
 ### 2. 同步调用（POST）
@@ -101,6 +123,28 @@ const result = await client.doAsyncResult(dto);
 console.log("结果:", result);
 ```
 
+### 5. 共享 Context 和并发调用
+
+多个 `DSAPIClient` 可以共享同一个 `DSAPIContext`，这样可以复用密钥对和加密算法，提高效率。多个 `DSAPIClient` 可以并发调用。
+
+```javascript
+// 共享同一个 Context（测试环境示例）
+const ctx = new DSAPIContext("你的appCode", "https://test-data-api.dianshudata.com");
+// 正式环境：const ctx = new DSAPIContext("你的appCode");
+
+// 创建多个客户端，使用不同的 apiCode
+const client1 = new DSAPIClient("apiCode1", ctx);
+const client2 = new DSAPIClient("apiCode2", ctx);
+const client3 = new DSAPIClient("apiCode3", ctx);
+
+// 可以并发调用
+const [result1, result2, result3] = await Promise.all([
+  client1.doPost({ bodyParams: [...] }),
+  client2.doGet({ queryParams: [...] }),
+  client3.doAsyncRequestPost({ bodyParams: [...] })
+]);
+```
+
 ## API 说明
 
 ### DSAPIContext
@@ -108,11 +152,17 @@ console.log("结果:", result);
 应用上下文，管理密钥对和加密算法。
 
 ```javascript
+// 测试环境
 const ctx = new DSAPIContext(appCode, baseUrl);
+
+// 正式环境
+const ctx = new DSAPIContext(appCode);
 ```
 
-- `appCode`: 应用代码
-- `baseUrl`: API 基础地址（如：`https://test-data-api.dianshudata.com`）
+- `appCode`: 应用代码（必填）
+- `baseUrl`: API 基础地址（可选）
+  - 测试环境：`https://test-data-api.dianshudata.com`
+  - 正式环境：不传此参数，使用默认值 `https://data-api.dianshudata.com`
 
 ### DSAPIClient
 
@@ -135,7 +185,7 @@ API 客户端，提供同步和异步调用方法。
 ## 环境支持
 
 - **Node.js**: 支持 CommonJS 和 ESM
-- **浏览器**: 支持现代浏览器（需要全局 `fetch` API）
+- **浏览器**: 需要支持全局 `fetch` API 的浏览器（Chrome 42+, Firefox 39+, Safari 10.1+, Edge 14+, Opera 29+）
 
 ## License
 

@@ -8,8 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@yeez-tech/dianshu-api-sdk": "^0.0.3",
     "buffer": "^6.0.3",
-    "dianshu-api-sdk": "file:../dianshu-api-sdk-0.0.1.tgz",
     "vue": "^3.5.0"
   },
   "devDependencies": {
